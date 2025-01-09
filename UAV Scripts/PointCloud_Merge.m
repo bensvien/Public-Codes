@@ -41,8 +41,16 @@ mergedIntensity=[pc1.Intensity; pc2.Intensity];
 mergedPointCloud = pointCloud(mergedLocations, 'Color', mergedColors,'Intensity',mergedIntensity);
 disp('Compiled')
 %%
-% Write the merged point cloud to a new LAS file
+% Write the merged point cloud to a new LAS file includ VLR and CRS metadata
 lasWriter=lasFileWriter(outputFile);
+
+geoKeyVLR = readVLR(reader1,34735);
+geoAsciiParamsVLR = readVLR(reader1,34737);
+geoOGRVLR=readVLR(reader1,2112);
+addVLR(lasWriter,34735,"LASF_Projection",geoKeyVLR.Data.KeyEntries,"GeoTIFF GeoKeyDirectoryTag")
+addVLR(lasWriter,34737,"LASF_Projection",geoAsciiParamsVLR.Data,"GeoTIFF GeoAsciiParamsTag")
+addVLR(lasWriter,2112,"liblas",geoOGRVLR.RawByteData,"OGR variant of OpenGIS WKT SRS")
+
 writePointCloud(lasWriter,mergedPointCloud);
 disp(['Merged LAS file!', outputFile]);
 datetime('now')
