@@ -43,7 +43,9 @@ disp('Compiled')
 %%
 % Write the merged point cloud to a new LAS file includ VLR and CRS metadata
 lasWriter=lasFileWriter(outputFile);
-
+%% Check Record ID
+reader1.VariableLengthRecords.('Record ID')
+%%
 geoKeyVLR = readVLR(reader1,34735);
 geoAsciiParamsVLR = readVLR(reader1,34737);
 geoOGRVLR=readVLR(reader1,2112);
