@@ -18,6 +18,21 @@ class PINN(tf.keras.Model):
             x = layer(x)
         return self.output_layer(x)
 
+def wave_equation_loss(model, X, c):
+    with tf.GradientTape(persistent=True) as tape2:
+        tape2.watch(X)
+        with tf.GradientTape() as tape1:
+            tape1.watch(X)
+            u = model(X)
+        u_gradients = tape1.gradient(u, X)  # Compute first derivatives
+        u_x = u_gradients[:, 0:1]
+        u_t = u_gradients[:, 1:2]
+    u_xx = tape2.gradient(u_x, X)[:, 0:1]  # Second derivative w.r.t. x
+    u_tt = tape2.gradient(u_t, X)[:, 1:2]  # Second derivative w.r.t. t
+    del tape1, tape2  # Free up memory
+    f = u_tt - c**2 * u_xx  # Wave equation residual
+    return tf.reduce_mean(tf.square(f))
 
+optimizer = tf.keras.optimizers.Adam()
 #%%
 model = PINN([2, 64, 64, 64, 1])  # 2,64,64,64,1 dense Sample-test
