@@ -23,7 +23,7 @@ print(f"CoTracker3 is using device: {device}")
 import imageio.v3 as iio
 # Load the video frames
 video_path = 'IMG_7295.mp4'
-frames = iio.imread(video_path, plugin='ffmpeg')  # Read video frames
+frames = iio.imread(video_path, plugin='FFMPEG')  # Read video frames FFMPEG must be capitalised
 # Convert frames to a tensor and move to the appropriate device
 video_tensor = torch.tensor(frames).permute(0, 3, 1, 2)[None].float().to(device)  # Shape: [1, T, C, H, W]
 
