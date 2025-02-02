@@ -33,16 +33,16 @@ video_path = 'IMG_7296.mp4'
 frames = iio.imread(video_path, plugin='FFMPEG')  # Read video frames FFMPEG must be capitalised
 # Convert frames to a tensor and move to the appropriate device
 #%%
-idx = 200
+idx = 250
 plt.imshow(frames[idx])
 plt.title(f"Preview - Frame at index {idx}")
 plt.axis("off")
 plt.show()
 #%%
-frames = frames[170:200]
+frames = frames[170:240]#70 frames ok
 video_tensor = torch.tensor(frames).permute(0, 3, 1, 2)[None].float().to(device)  # Shape: [1, T, C, H, W]
 
-grid_size = 10  # Defines a 10x10 grid of points to track
+grid_size = 40  # Defines a 10x10 grid of points to track
 
 print("Running CoTracker3...")
 pred_tracks, pred_visibility = cotracker(video_tensor, grid_size=grid_size)  # Output shapes: [1, T, N, 2], [1, T, N, 1]
@@ -71,6 +71,26 @@ def visualize_tracking(frame, tracks, frame_idx):
     plt.title(f"Frame {frame_idx}")
     plt.axis("off")
     plt.show()
+    
+def visualize_tracking2(frame, tracks, frame_idx):
+    """
+    Visualize tracking results by plotting trajectories up to the specified frame.
+    
+    Parameters:
+      frame: The current frame image (numpy array).
+      tracks: A numpy array of shape [T, N, 2] with tracked coordinates.
+      frame_idx: The frame index up to which to plot trajectories.
+    """
+    plt.imshow(frame)
+    # Vectorized plotting of trajectories:
+    # tracks[:frame_idx+1, :, 0] has shape [frame_idx+1, N]; transposing it to [N, frame_idx+1] 
+    # makes each row a trajectory of a single point.
+    plt.plot(tracks[:frame_idx+1, :, 0].T,
+             tracks[:frame_idx+1, :, 1].T,
+             marker='o', markersize=3, linestyle='None', alpha=0.5)
+    plt.title(f"Frame {frame_idx}")
+    plt.axis("off")
+    plt.show()    
 
 #%%
 from cotracker.utils.visualizer import Visualizer
@@ -81,6 +101,6 @@ vis.visualize(video_tensor, pred_tracks, pred_visibility)
 #%%
 # Visualize the first frame with tracking
 frame_idx = 10  # Change to any frame index to see tracking progress
-visualize_tracking(frames[frame_idx], pred_tracks_np, frame_idx)
+visualize_tracking2(frames[frame_idx], pred_tracks_np, frame_idx)
 
 print("Tracking completed successfully!")
