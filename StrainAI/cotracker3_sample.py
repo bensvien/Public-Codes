@@ -35,7 +35,7 @@ cotracker = torch.hub.load('facebookresearch/co-tracker', 'cotracker3_offline').
 print(f"CoTracker3 is using device: {device}")
 #%% Load Video Frames
 # Load the video frames
-video_path = 'IMG_7296.mp4'
+video_path = 'IMG_7295.mp4'
 frames = iio.imread(video_path, plugin='FFMPEG')  # Read video frames FFMPEG must be capitalised
 
 #%% Check Frame Image
