@@ -114,9 +114,47 @@ def plot_single_frame_with_gradient(frame, tracks, frame_idx):
     plt.title(f"Tracking Visualization - Frame {frame_idx}")
     plt.axis("off")
     plt.show()
+    
+def plot_single_frame_with_gradient_visibility(frame, tracks, visibility, frame_idx):
+    """
+    Plots a single video frame with tracking points, using gradient colors and visibility weighting.
+
+    Parameters:
+    - frame: The image (NumPy array) of the frame to be plotted.
+    - tracks: A NumPy array containing the tracked points' coordinates.
+    - visibility: A NumPy array containing visibility scores (confidence).
+    - frame_idx: Index of the frame to visualize.
+    """
+    plt.figure(figsize=(10, 8))
+    plt.imshow(frame)
+
+    num_points = tracks.shape[1]  # Number of tracked points
+    colors = cm.jet_r(np.linspace(0, 1, num_points))  # Generate gradient colormap
+
+    # Remove batch dimension & extract visibility scores
+    visibility_np = visibility.squeeze(0).cpu().numpy()  # Shape becomes [T, N]
+    visibilities = visibility_np[frame_idx, :].astype(np.float32)  # Convert to float
+
+    # Normalize visibility values between 0 and 1
+    visibilities = (visibilities - visibilities.min()) / (visibilities.max() - visibilities.min() + 1e-6)
+
+    for point_idx in range(num_points):
+        x, y = tracks[frame_idx, point_idx]  # Get (x, y) coordinates
+        alpha = visibilities[point_idx]  # Set transparency based on visibility
+        size = 5 + 20 * alpha  # Scale dot size (more visible points are larger)
+
+        plt.scatter(x, y, color=colors[point_idx], s=size, alpha=alpha, edgecolors='None', linewidth=0.5)
+
+    plt.title(f"Tracking Visualization - Frame {frame_idx} (Visibility Weighted)")
+    plt.axis("off")
+    plt.show()
 
 # Example usage:
-frame_index = 0  # Index of the frame you want to plot
+frame_index = 5  # Index of the frame you want to plot
+plot_single_frame_with_gradient_visibility(frames[frame_index], pred_tracks_np, pred_visibility, frame_index)
+#%%
+# Example usage:
+frame_index = 5  # Index of the frame you want to plot
 plot_single_frame_with_gradient(frames[frame_index], pred_tracks_np, frame_index)
     
 #%% Call cotracker Visualizer
