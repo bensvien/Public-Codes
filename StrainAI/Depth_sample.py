@@ -69,5 +69,3 @@ plt.title("Estimated Depth Map")
 plt.axis("off")  # Hide axes for better visualization
 # Save the figure
 plt.savefig("depth_map.png", dpi=800, bbox_inches="tight")  # High-quality PNG
-
-
