@@ -35,7 +35,7 @@ if torch.__version__ >= "2.0":
 #%%
 # Define input folder and output video path
 input_folder = "frames"
-output_video_path = "depth_output5.mp4"
+output_video_path = "depth_output6.mp4"
 
 # Get frame list
 frame_files = sorted(os.listdir(input_folder))  # Ensure frames are processed in order
@@ -92,7 +92,7 @@ for frame_file in frame_files:
 import matplotlib.pyplot as plt
 
 # Set your custom (X, Y) reference point
-baseline_x, baseline_y = 200, 1800  # Change this to any point
+baseline_x, baseline_y = 900, 300  # Change this to any point
 
 # Convert depth maps to color and save video
 for i, depth_frame in enumerate(depth_frames):
@@ -109,7 +109,7 @@ for i, depth_frame in enumerate(depth_frames):
     print(f"Frame {i} - Baseline Depth at ({baseline_x},{baseline_y}): {baseline_depth:.4f}")
 
     # Scale depth map using baseline depth (Preserve original depth relations)
-    depth_np = (depth_np / baseline_depth) * 255
+    depth_np = (depth_np / baseline_depth) * 127
     depth_np = np.clip(depth_np, 0, 255).astype(np.uint8)  # Convert to uint8
 
     # Apply OpenCV Jet colormap (BGR format)
@@ -143,38 +143,38 @@ print(f"Depth video saved successfully as: {output_video_path}")
 
 
 #%% Simple
-# Normalize depth maps using overall min/max (Done in GPU)
-depth_frames_normalized = [(255 * (d - global_min) / (global_max - global_min)).to(torch.uint8) for d in depth_frames]
-import matplotlib.pyplot as plt
-#% Debug
-for i, depth_frame in enumerate(depth_frames_normalized):
-    depth_np = depth_frame.cpu().numpy()  # Move from GPU to CPU
+# # Normalize depth maps using overall min/max (Done in GPU)
+# depth_frames_normalized = [(255 * (d - global_min) / (global_max - global_min)).to(torch.uint8) for d in depth_frames]
+# import matplotlib.pyplot as plt
+# #% Debug
+# for i, depth_frame in enumerate(depth_frames_normalized):
+#     depth_np = depth_frame.cpu().numpy()  # Move from GPU to CPU
 
 
-    depth_np = np.squeeze(depth_np)
-    # depth_np = np.clip(depth_np / depth_np.max() * 255, 0, 255).astype(np.uint8)
+#     depth_np = np.squeeze(depth_np)
+#     # depth_np = np.clip(depth_np / depth_np.max() * 255, 0, 255).astype(np.uint8)
 
-    depth_colored = cv2.applyColorMap(depth_np, cv2.COLORMAP_JET)
-    # depth_colored = cv2.applyColorMap(depth_np.astype(np.uint8), cv2.COLORMAP_JET)
+#     depth_colored = cv2.applyColorMap(depth_np, cv2.COLORMAP_JET)
+#     # depth_colored = cv2.applyColorMap(depth_np.astype(np.uint8), cv2.COLORMAP_JET)
 
-    if i % 100==0:
-        plt.figure(figsize=(8, 6))
-        plt.imshow(depth_colored,cmap="jet", vmin=0, vmax=255)
-        plt.axis("off")
-        plt.title(f"Frame {i} - Corrected Depth Map")
-        plt.show()
+#     if i % 100==0:
+#         plt.figure(figsize=(8, 6))
+#         plt.imshow(depth_colored,cmap="jet", vmin=0, vmax=255)
+#         plt.axis("off")
+#         plt.title(f"Frame {i} - Corrected Depth Map")
+#         plt.show()
 
-    #  Resize frame if needed
-    if depth_colored.shape[:2] != (height, width):
-        depth_colored = cv2.resize(depth_colored, (width, height))
+#     # Resize frame if needed
+#     if depth_colored.shape[:2] != (height, width):
+#         depth_colored = cv2.resize(depth_colored, (width, height))
 
-    #  Write corrected frame to video
-    out.write(depth_colored)
-    print(f"Added frame {i} to video")
+#     # Write corrected frame to video
+#     out.write(depth_colored)
+#     print(f"Added frame {i} to video")
 
-#  Release video writer
-out.release()
-print(f"Depth video saved successfully as: {output_video_path}")
+# # Release video writer
+# out.release()
+# print(f"Depth video saved successfully as: {output_video_path}")
 
 
 
